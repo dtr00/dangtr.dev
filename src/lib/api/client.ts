@@ -3,4 +3,6 @@
 import type { app } from "@/app/api/[[...slugs]]/route";
 import { treaty } from "@elysiajs/eden";
 
-export const api = treaty<typeof app>("").api;
+export const api = treaty<typeof app>(
+  typeof window !== "undefined" ? window.location.origin : ""
+).api;
