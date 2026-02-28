@@ -1,8 +1,10 @@
 import "@/styles/globals.css";
 
 import { Header } from "@/components/header";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryProvider } from "@/providers/query-provider";
 import type { Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", preload: true });
@@ -17,15 +19,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>
-        <QueryProvider>
-          <main className="flex flex-col w-full max-w-xl mx-auto px-8">
-            <Header />
+        <ThemeProvider
+          attribute="class"
+          forcedTheme="dark"
+          enableSystem={false}
+        >
+          <QueryProvider>
+            <TooltipProvider>
+              <main className="flex flex-col w-full max-w-xl mx-auto px-8">
+                <Header />
 
-            {children}
-          </main>
-        </QueryProvider>
+                {children}
+              </main>
+            </TooltipProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

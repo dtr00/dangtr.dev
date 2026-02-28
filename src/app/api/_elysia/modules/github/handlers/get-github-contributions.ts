@@ -4,6 +4,10 @@ import { rateLimit } from "elysia-rate-limit";
 import z from "zod";
 import { githubClient } from "../client";
 
+function getWeekday(dateStr: string): number {
+  return new Date(dateStr + "T00:00:00Z").getUTCDay();
+}
+
 export const getGithubContributions = new Elysia({
   name: "get-github-contributions",
 })
@@ -14,10 +18,19 @@ export const getGithubContributions = new Elysia({
     })
   )
   .get("/contributions", async ({ status }) => {
+    const now = new Date();
+    const to = now.toISOString().slice(0, 10);
+    const from = new Date(now);
+    from.setMonth(from.getMonth() - 7);
+    from.setDate(from.getDate() - 7);
+    const fromStr = from.toISOString().slice(0, 10);
+
     const { data } = await githubClient.query({
       query: GITHUB_CONTRIBUTIONS_QUERY,
       variables: {
         username: "dtr00",
+        from: fromStr + "T00:00:00Z",
+        to: to + "T23:59:59Z",
       },
     });
 
@@ -28,15 +41,23 @@ export const getGithubContributions = new Elysia({
       });
     }
 
-    // format data for heatmap component
-    const contributions =
-      validated.data.user.contributionsCollection.contributionCalendar.weeks.flatMap(
-        (week) =>
-          week.contributionDays.map((day) => ({
-            date: day.date.replace(/-/g, "/"), // format date to YYYY/MM/DD
-            count: day.contributionCount,
-          }))
-      );
+    const weeks =
+      validated.data.user.contributionsCollection.contributionCalendar.weeks;
+    const contributions: { date: string; count: number }[] = [];
+
+    for (const week of weeks) {
+      const dayMap = new Map<number, { date: string; count: number }>();
+      for (const day of week.contributionDays) {
+        dayMap.set(getWeekday(day.date), {
+          date: day.date.replace(/-/g, "/"),
+          count: day.contributionCount,
+        });
+      }
+
+      for (let d = 0; d < 7; d++) {
+        contributions.push(dayMap.get(d) ?? { date: "", count: 0 });
+      }
+    }
 
     const formatted = z.array(contributionsSchema).safeParse(contributions);
     if (!formatted.success) {
@@ -49,9 +70,13 @@ export const getGithubContributions = new Elysia({
   });
 
 const GITHUB_CONTRIBUTIONS_QUERY = gql`
-  query GithubContributions($username: String!) {
+  query GithubContributions(
+    $username: String!
+    $from: DateTime
+    $to: DateTime
+  ) {
     user(login: $username) {
-      contributionsCollection {
+      contributionsCollection(from: $from, to: $to) {
         contributionCalendar {
           totalContributions
           weeks {

@@ -1,3 +1,9 @@
+import { GithubContributions } from "@/components/github/github-contributions";
+
 export default function Page() {
-  return <div>nothing here yet.</div>;
+  return (
+    <>
+      <GithubContributions />
+    </>
+  );
 }
