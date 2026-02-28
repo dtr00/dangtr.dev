@@ -29,7 +29,6 @@ export async function GithubCommit() {
       >
         <IconGitCommit className="size-4 text-foreground" />
         <code>{commit.data.oidShort}</code>
-        <span>{commit.data.message}</span>
       </Link>
     </section>
   );
