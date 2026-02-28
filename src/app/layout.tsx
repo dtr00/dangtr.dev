@@ -28,7 +28,7 @@ export default function RootLayout({
         >
           <QueryProvider>
             <TooltipProvider>
-              <main className="flex flex-col w-full max-w-xl mx-auto px-8">
+              <main className="flex flex-col gap-12 w-full max-w-xl mx-auto px-8">
                 <Header />
 
                 {children}
