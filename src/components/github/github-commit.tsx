@@ -11,8 +11,6 @@ export async function GithubCommit() {
 
   if (!commit.data) return null;
 
-  console.log(commit.data);
-
   return (
     <section className="text-xs text-muted-foreground space-y-1">
       <Link
