@@ -64,6 +64,40 @@ function stickToBottom(element: HTMLElement | null) {
   if (list) list.scrollTop = list.scrollHeight
 }
 
+function alignWithKeyboard(input: HTMLInputElement | null) {
+  const viewport = window.visualViewport
+  if (!input || !viewport) return
+  let frame = 0
+
+  const align = () => {
+    if (
+      document.activeElement !== input ||
+      !window.matchMedia('(max-width: 639px)').matches ||
+      viewport.scale !== 1
+    ) {
+      return
+    }
+    const bottom = input.form!.getBoundingClientRect().bottom
+    window.scrollBy({
+      top: bottom - viewport.offsetTop - viewport.height + 16,
+      behavior: 'instant',
+    })
+  }
+
+  const schedule = () => {
+    cancelAnimationFrame(frame)
+    frame = requestAnimationFrame(align)
+  }
+
+  input.addEventListener('focus', schedule)
+  viewport.addEventListener('resize', schedule)
+  return () => {
+    cancelAnimationFrame(frame)
+    input.removeEventListener('focus', schedule)
+    viewport.removeEventListener('resize', schedule)
+  }
+}
+
 export default function MeowChat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
@@ -139,6 +173,7 @@ export default function MeowChat() {
         className="flex items-center gap-2 rounded-lg bg-muted p-2"
       >
         <input
+          ref={alignWithKeyboard}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="ask me anything"
