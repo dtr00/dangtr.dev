@@ -1,6 +1,6 @@
 {
-  "short_name": "dangtr.dev",
-  "name": "dangtr.dev",
+  "short_name": "dang tran",
+  "name": "dang tran",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#252525",
-  "background_color": "#252525"
+  "theme_color": "#000000",
+  "background_color": "#000000"
 }

@@ -1,11 +1,9 @@
 //  @ts-check
 
-import convexPlugin from '@convex-dev/eslint-plugin'
 import { tanstackConfig } from '@tanstack/eslint-config'
 
 export default [
   ...tanstackConfig,
-  ...convexPlugin.configs.recommended,
   {
     rules: {
       'import/no-cycle': 'off',
@@ -17,6 +15,6 @@ export default [
     },
   },
   {
-    ignores: ['eslint.config.js', 'prettier.config.js'],
+    ignores: ['eslint.config.js', 'prettier.config.js', '.output/**'],
   },
 ]

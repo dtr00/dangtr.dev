@@ -1,52 +1,69 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
-import ContributionHeatmap from '#/features/github/components/contribution-heatmap'
-import HomepageIntro from '#/features/homepage/components/homepage-intro'
-import { homepageIntroQuery } from '#/features/homepage/lib/homepage-intro-query'
-import ResourcesSection from '#/features/resources/components/resources-section'
-import { preloadResourceIcons, ResourceIconSsrProvider } from '#/features/resources/lib/resource-icons'
-import { resourcesListQuery } from '#/features/resources/lib/resources-query'
-import { getGitHubContributions } from '#/features/github/server/get-github-contributions'
-import { renderResourceIconSvgs } from '#/features/resources/server/render-resource-icon-svgs'
+import KoiPondAscii from '#/features/home/components/koi-pond-ascii'
+import { clickDuringViewTransition } from '#/lib/click-during-view-transition'
 
 export const Route = createFileRoute('/')({
-  staleTime: Infinity,
-  loader: async ({ context: { queryClient } }) => {
-    const [githubData, resources, homepageIntro] = await Promise.all([
-      getGitHubContributions(),
-      queryClient.ensureQueryData(resourcesListQuery),
-      queryClient.ensureQueryData(homepageIntroQuery),
-    ])
-
-    const iconNames = resources.map((resource) => resource.icon)
-
-    await preloadResourceIcons(iconNames)
-
-    const resourceIconSvgs = import.meta.env.SSR
-      ? renderResourceIconSvgs(iconNames)
-      : {}
-
-    return { githubData, resourceIconSvgs, resources, homepageIntro }
-  },
   component: Home,
 })
 
-function Home() {
-  const { githubData, resourceIconSvgs, resources, homepageIntro } =
-    Route.useLoaderData()
+const clickableProjects = clickDuringViewTransition()
+const clickableWork = clickDuringViewTransition()
+const clickableAi = clickDuringViewTransition()
+const clickableAbout = clickDuringViewTransition()
 
+function Home() {
   return (
-    <main className="mx-auto max-w-3xl px-8 py-8">
-      <HomepageIntro initialContent={homepageIntro} />
-      <ResourceIconSsrProvider svgs={resourceIconSvgs}>
-        {githubData ? (
-          <ContributionHeatmap
-            contributions={githubData.contributions}
-            username={githubData.username}
-          />
-        ) : null}
-        <ResourcesSection initialResources={resources} />
-      </ResourceIconSsrProvider>
+    <main className="flex min-h-dvh flex-col">
+      <div className="mx-auto w-full max-w-3xl px-6 pt-24 sm:px-8 sm:pt-32">
+        <h1 className="text-lg font-medium tracking-tight">
+          <span className="inline-block [view-transition-name:brand-name]">
+            dang
+          </span>{' '}
+          tran
+        </h1>
+        <p className="mt-1 text-lg text-muted-foreground">
+          i like to build stuff
+        </p>
+        <p className="mt-4 text-lg text-muted-foreground">
+          incredibly hyper-fixated on design and speed
+        </p>
+        <nav className="mt-8 flex flex-col items-start gap-y-3 text-lg">
+          <Link
+            ref={clickableWork}
+            to="/work"
+            className="text-foreground underline underline-offset-4"
+          >
+            work
+          </Link>
+          <Link
+            ref={clickableProjects}
+            to="/projects"
+            className="text-foreground underline underline-offset-4"
+          >
+            projects
+          </Link>
+          <Link
+            ref={clickableAbout}
+            to="/about"
+            className="text-foreground underline underline-offset-4"
+          >
+            about me
+          </Link>
+        </nav>
+      </div>
+      <div className="mx-auto mt-auto w-full max-w-3xl pt-16">
+        <div className="flex justify-end px-6 pb-2 text-lg sm:px-8">
+          <Link
+            ref={clickableAi}
+            to="/meow"
+            className="text-foreground underline underline-offset-4"
+          >
+            meow ai
+          </Link>
+        </div>
+        <KoiPondAscii />
+      </div>
     </main>
   )
 }
